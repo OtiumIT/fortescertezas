@@ -34,11 +34,19 @@ local_protocol = "http"
 #    Workers > seu-worker > Settings > Variables > Secrets
 #
 # Secrets a configurar (NÃO vão no .toml por segurança):
+# Configure via CLI: wrangler secret put NOME_DO_SECRET
+# Ou via Dashboard: Workers > api-fortescertezas > Settings > Variables > Secrets
+#
+# Secrets obrigatórias:
 # - JWT_SECRET=sua-chave-secreta-muito-forte (OBRIGATÓRIO)
 # - ADMIN_PASSWORD=sua-senha-segura (OBRIGATÓRIO)
 # - SUPABASE_URL=https://seu-projeto.supabase.co (OBRIGATÓRIO para usar Supabase)
 # - SUPABASE_ANON_KEY=sua-chave-anon-do-supabase (OBRIGATÓRIO para usar Supabase)
 # - SUPABASE_SERVICE_KEY=sua-service-key-do-supabase (Opcional, para operações administrativas)
+#
+# IMPORTANTE: Secrets configuradas no Cloudflare NÃO são enumeráveis!
+# Use acesso direto: env.SUPABASE_URL (não Object.keys(env))
+# Veja api/SECRETS_EXPLAINED.md para mais detalhes
 #
 # Nota: As outras variáveis (CORS_ORIGIN, NODE_ENV, etc.) estão configuradas acima em [vars]
 #
