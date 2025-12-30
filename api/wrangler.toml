@@ -5,9 +5,16 @@ compatibility_flags = ["nodejs_compat"]
 # Entry point para o Worker
 main = "src/index.ts"
 
-# Variáveis de ambiente para desenvolvimento local
+# Variáveis de ambiente (aplicadas em produção e desenvolvimento local)
+# IMPORTANTE: Estas variáveis são versionadas no código
+# Secrets (JWT_SECRET, ADMIN_PASSWORD) devem ser configurados como Secrets no Cloudflare
 [vars]
 NODE_ENV = "production"
+CORS_ORIGIN = "https://fcu.otiumit.com.br,https://www.fcu.otiumit.com.br"
+JWT_EXPIRES_IN = "7d"
+DATA_DIR = "/dados"
+UPLOADS_DIR = "/uploads"
+ADMIN_USERNAME = "admin"
 
 # Porta para desenvolvimento local
 [dev]
@@ -26,11 +33,8 @@ local_protocol = "http"
 # 2. Via Painel Cloudflare:
 #    Workers > seu-worker > Settings > Variables > Secrets
 #
-# Secrets a configurar:
-# - JWT_SECRET=sua-chave-secreta-muito-forte
-# - JWT_EXPIRES_IN=7d
-# - CORS_ORIGIN=https://fcu.otiumit.com.br,https://www.fcu.otiumit.com.br
-# - ADMIN_USERNAME=admin
-# - ADMIN_PASSWORD=sua-senha-segura
-# - DATA_DIR=/dados (caminho relativo aos arquivos JSON no bundle)
-# - UPLOADS_DIR=/uploads (para uploads, considere usar R2 Storage)
+# Secrets a configurar (NÃO vão no .toml por segurança):
+# - JWT_SECRET=sua-chave-secreta-muito-forte (OBRIGATÓRIO)
+# - ADMIN_PASSWORD=sua-senha-segura (OBRIGATÓRIO)
+#
+# Nota: As outras variáveis (CORS_ORIGIN, NODE_ENV, etc.) estão configuradas acima em [vars]
