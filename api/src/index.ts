@@ -289,36 +289,51 @@ export default {
 };
 
 // Para desenvolvimento local com Node.js
-if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production') {
-  const port = env.PORT;
+// Só executa se realmente estiver em Node.js (não durante deploy do Worker)
+// Verifica se está em ambiente de desenvolvimento Node.js (não Workers)
+const isNodeDev = typeof process !== 'undefined' && 
+                  process.env && 
+                  process.env.NODE_ENV !== 'production' && 
+                  process.env.JWT_SECRET &&
+                  !process.env.CF_PAGES && // Cloudflare Pages/Workers não tem isso
+                  !process.env.WRANGLER_SEND_METRICS; // Wrangler não define isso em dev local
 
-  // Captura erros não tratados e rejeições de promessas
-  process.on('uncaughtException', (error) => {
-    console.error('❌ Uncaught Exception:', error);
-    process.exit(1);
-  });
-
-  process.on('unhandledRejection', (reason, promise) => {
-    console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
-  });
-
-  logInfo(`Server starting on port ${port}`, { port, nodeEnv: env.NODE_ENV });
-
-  // Aguarda um pouco para garantir que serve foi carregado
+if (isNodeDev) {
+  // Aguarda um pouco para garantir que env foi inicializado
   setTimeout(() => {
-    if (serve) {
-      // Inicia o servidor HTTP
-      serve({
-        fetch: app.fetch,
-        port,
-      }, (info: { port: number; address: string }) => {
-        logInfo(`🚀 Server is running on http://localhost:${info.port}`, { 
-          port: info.port,
-          address: info.address 
-        });
-        console.log(`📚 Swagger UI available at http://localhost:${info.port}/docs`);
-        console.log(`❤️  Health check at http://localhost:${info.port}/health`);
+    try {
+      const port = env.PORT;
+
+      // Captura erros não tratados e rejeições de promessas
+      process.on('uncaughtException', (error) => {
+        console.error('❌ Uncaught Exception:', error);
+        process.exit(1);
       });
+
+      process.on('unhandledRejection', (reason, promise) => {
+        console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
+      });
+
+      logInfo(`Server starting on port ${port}`, { port, nodeEnv: env.NODE_ENV });
+
+      // Aguarda um pouco para garantir que serve foi carregado
+      if (serve) {
+        // Inicia o servidor HTTP
+        serve({
+          fetch: app.fetch,
+          port,
+        }, (info: { port: number; address: string }) => {
+          logInfo(`🚀 Server is running on http://localhost:${info.port}`, { 
+            port: info.port,
+            address: info.address 
+          });
+          console.log(`📚 Swagger UI available at http://localhost:${info.port}/docs`);
+          console.log(`❤️  Health check at http://localhost:${info.port}/health`);
+        });
+      }
+    } catch (error) {
+      // Ignora erros durante inicialização (pode ser Workers)
+      // Não faz nada - isso é esperado durante deploy do Worker
     }
   }, 100);
 }

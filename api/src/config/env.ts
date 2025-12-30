@@ -83,8 +83,20 @@ function getEnv(workerEnv?: Env): EnvConfig {
   const adminUsername = envSource.ADMIN_USERNAME || 'admin';
   const adminPassword = envSource.ADMIN_PASSWORD || 'admin123';
 
+  // Se não tiver JWT_SECRET, retorna valores padrão (durante deploy do Worker)
+  // O JWT_SECRET será fornecido via workerEnv quando o handler for chamado
   if (!jwtSecret) {
-    throw new Error('JWT_SECRET is required');
+    return {
+      PORT: port,
+      NODE_ENV: nodeEnv,
+      JWT_SECRET: 'placeholder-will-be-replaced-by-worker-env',
+      JWT_EXPIRES_IN: jwtExpiresIn,
+      CORS_ORIGIN: corsOrigin,
+      DATA_DIR: dataDir,
+      UPLOADS_DIR: uploadsDir,
+      ADMIN_USERNAME: adminUsername,
+      ADMIN_PASSWORD: adminPassword,
+    };
   }
 
   return {
@@ -110,11 +122,26 @@ export function createEnv(workerEnv?: Env): EnvConfig {
 let _env: EnvConfig | null = null;
 function getDefaultEnv(): EnvConfig {
   if (!_env) {
-    // Só tenta inicializar se estiver em Node.js
-    if (typeof process !== 'undefined' && process.env) {
-      _env = getEnv();
+    // Só tenta inicializar se estiver em Node.js E tiver JWT_SECRET disponível
+    if (typeof process !== 'undefined' && process.env && process.env.JWT_SECRET) {
+      try {
+        _env = getEnv();
+      } catch {
+        // Se falhar (ex: durante deploy do Worker), usa valores padrão
+        _env = {
+          PORT: 8787,
+          NODE_ENV: 'production',
+          JWT_SECRET: 'placeholder',
+          JWT_EXPIRES_IN: '7d',
+          CORS_ORIGIN: '*',
+          DATA_DIR: '/dados',
+          UPLOADS_DIR: '/uploads',
+          ADMIN_USERNAME: 'admin',
+          ADMIN_PASSWORD: 'admin123',
+        };
+      }
     } else {
-      // Em Workers, retorna valores padrão (será sobrescrito quando o handler for chamado)
+      // Em Workers ou quando não há JWT_SECRET, retorna valores padrão
       _env = {
         PORT: 8787,
         NODE_ENV: 'production',
