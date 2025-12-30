@@ -256,6 +256,12 @@ app.get('/health', (c) => {
 // Handler para Cloudflare Workers
 export default {
   async fetch(request: Request, workerEnv: Env, ctx: ExecutionContext): Promise<Response> {
+    // Log para debug - verificar se workerEnv tem as variáveis
+    console.log('[index] Worker handler chamado');
+    console.log('[index] workerEnv keys:', Object.keys(workerEnv).join(', '));
+    console.log('[index] SUPABASE_URL presente:', 'SUPABASE_URL' in workerEnv, 'valor:', !!workerEnv.SUPABASE_URL);
+    console.log('[index] SUPABASE_ANON_KEY presente:', 'SUPABASE_ANON_KEY' in workerEnv, 'valor:', !!workerEnv.SUPABASE_ANON_KEY);
+    
     // Cria env a partir do workerEnv (necessário para criar o CORS middleware)
     const envConfig = createEnv(workerEnv);
     

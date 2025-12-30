@@ -2,15 +2,24 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { env } from '../config/env.js';
 
 let supabaseClient: SupabaseClient | null = null;
+let lastSupabaseUrl: string | null = null;
+let lastSupabaseKey: string | null = null;
 
 export function getSupabaseClient(): SupabaseClient {
-  if (supabaseClient) {
+  const supabaseUrl = env.SUPABASE_URL;
+  const supabaseKey = env.SUPABASE_ANON_KEY;
+
+  // Se o cliente já existe e as credenciais são as mesmas, reutiliza
+  if (supabaseClient && lastSupabaseUrl === supabaseUrl && lastSupabaseKey === supabaseKey) {
     console.log('[supabase] Usando cliente Supabase existente');
     return supabaseClient;
   }
 
-  const supabaseUrl = env.SUPABASE_URL;
-  const supabaseKey = env.SUPABASE_ANON_KEY;
+  // Se as credenciais mudaram ou o cliente não existe, cria novo
+  if (supabaseClient) {
+    console.log('[supabase] Credenciais mudaram, recriando cliente');
+    supabaseClient = null;
+  }
 
   console.log('[supabase] Inicializando cliente Supabase...');
   console.log('[supabase] SUPABASE_URL:', supabaseUrl ? `${supabaseUrl.substring(0, 20)}...` : 'NÃO CONFIGURADO');
@@ -31,6 +40,10 @@ export function getSupabaseClient(): SupabaseClient {
         persistSession: false, // Workers não mantêm sessão
       },
     });
+
+    // Armazena as credenciais usadas para verificar mudanças futuras
+    lastSupabaseUrl = supabaseUrl;
+    lastSupabaseKey = supabaseKey;
 
     console.log('[supabase] ✅ Cliente Supabase criado com sucesso');
     return supabaseClient;
