@@ -29,7 +29,7 @@ local_protocol = "http"
 # Secrets a configurar:
 # - JWT_SECRET=sua-chave-secreta-muito-forte
 # - JWT_EXPIRES_IN=7d
-# - CORS_ORIGIN=https://seudominio.com,https://www.seudominio.com
+# - CORS_ORIGIN=https://fcu.otiumit.com.br,https://www.fcu.otiumit.com.br
 # - ADMIN_USERNAME=admin
 # - ADMIN_PASSWORD=sua-senha-segura
 # - DATA_DIR=/dados (caminho relativo aos arquivos JSON no bundle)
