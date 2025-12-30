@@ -256,11 +256,17 @@ app.get('/health', (c) => {
 // Handler para Cloudflare Workers
 export default {
   async fetch(request: Request, workerEnv: Env, ctx: ExecutionContext): Promise<Response> {
-    // Log para debug - verificar se workerEnv tem as variáveis
+    // IMPORTANTE: Secrets no Cloudflare Workers NÃO são enumeráveis!
+    // Object.keys() não vai mostrar Secrets, mas eles estão disponíveis via acesso direto
     console.log('[index] Worker handler chamado');
-    console.log('[index] workerEnv keys:', Object.keys(workerEnv).join(', '));
-    console.log('[index] SUPABASE_URL presente:', 'SUPABASE_URL' in workerEnv, 'valor:', !!workerEnv.SUPABASE_URL);
-    console.log('[index] SUPABASE_ANON_KEY presente:', 'SUPABASE_ANON_KEY' in workerEnv, 'valor:', !!workerEnv.SUPABASE_ANON_KEY);
+    console.log('[index] Variables enumeráveis:', Object.keys(workerEnv).join(', '));
+    
+    // Acessa Secrets diretamente (não são enumeráveis por segurança)
+    const supabaseUrl = workerEnv.SUPABASE_URL;
+    const supabaseKey = workerEnv.SUPABASE_ANON_KEY;
+    
+    console.log('[index] SUPABASE_URL (direct):', !!supabaseUrl, supabaseUrl ? `${supabaseUrl.substring(0, 30)}...` : 'NÃO CONFIGURADO');
+    console.log('[index] SUPABASE_ANON_KEY (direct):', !!supabaseKey, supabaseKey ? `${supabaseKey.substring(0, 20)}...` : 'NÃO CONFIGURADO');
     
     // Cria env a partir do workerEnv (necessário para criar o CORS middleware)
     const envConfig = createEnv(workerEnv);

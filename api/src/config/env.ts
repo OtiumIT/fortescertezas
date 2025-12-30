@@ -54,9 +54,11 @@ function getEnv(workerEnv?: Env): EnvConfig {
   // Log detalhado para debug
   if (isWorker) {
     console.log('[env.getEnv] Worker environment detectado');
-    console.log('[env.getEnv] workerEnv keys:', Object.keys(workerEnv || {}).join(', '));
-    console.log('[env.getEnv] SUPABASE_URL presente:', 'SUPABASE_URL' in (workerEnv || {}), 'valor:', !!envSource.SUPABASE_URL);
-    console.log('[env.getEnv] SUPABASE_ANON_KEY presente:', 'SUPABASE_ANON_KEY' in (workerEnv || {}), 'valor:', !!envSource.SUPABASE_ANON_KEY);
+    // IMPORTANTE: Secrets não são enumeráveis! Apenas Variables aparecem em Object.keys()
+    console.log('[env.getEnv] Variables enumeráveis:', Object.keys(workerEnv || {}).join(', '));
+    // Acessa Secrets diretamente (eles existem mas não são enumeráveis)
+    console.log('[env.getEnv] SUPABASE_URL (direct):', !!envSource.SUPABASE_URL, envSource.SUPABASE_URL ? `${envSource.SUPABASE_URL.substring(0, 30)}...` : 'NÃO CONFIGURADO');
+    console.log('[env.getEnv] SUPABASE_ANON_KEY (direct):', !!envSource.SUPABASE_ANON_KEY, envSource.SUPABASE_ANON_KEY ? `${envSource.SUPABASE_ANON_KEY.substring(0, 20)}...` : 'NÃO CONFIGURADO');
   } else {
     console.log('[env.getEnv] Node.js environment, SUPABASE_URL:', !!envSource.SUPABASE_URL, 'SUPABASE_ANON_KEY:', !!envSource.SUPABASE_ANON_KEY);
   }
