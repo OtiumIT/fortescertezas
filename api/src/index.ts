@@ -1,3 +1,6 @@
+/// <reference path="./env.d.ts" />
+/// <reference types="@cloudflare/workers-types" />
+
 import { Hono } from 'hono';
 import { logger } from 'hono/logger';
 import { swaggerUI } from '@hono/swagger-ui';

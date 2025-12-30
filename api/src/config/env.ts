@@ -1,3 +1,6 @@
+/// <reference path="../env.d.ts" />
+/// <reference types="@cloudflare/workers-types" />
+
 // Importação condicional para Node.js (apenas em desenvolvimento local)
 // Em Workers, essas importações não são necessárias
 let dotenvLoaded = false;
@@ -35,6 +38,8 @@ export interface EnvConfig {
   ADMIN_USERNAME: string;
   ADMIN_PASSWORD: string;
 }
+
+/// <reference path="../env.d.ts" />
 
 // Função para obter env de Workers ou Node.js
 // O tipo Env é definido em src/env.d.ts e está disponível globalmente
