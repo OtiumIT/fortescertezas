@@ -17,8 +17,8 @@ async function saveImage(file: File): Promise<string> {
   }
 
   // Validar tipo de arquivo
-  const allowedTypes = [...ALLOWED_FILE_TYPES.images];
-  if (!allowedTypes.includes(file.type)) {
+  const allowedTypes = [...ALLOWED_FILE_TYPES.images] as readonly string[];
+  if (!allowedTypes.includes(file.type as any)) {
     throw new Error('Tipo de arquivo não permitido. Apenas imagens são aceites.');
   }
 
@@ -28,7 +28,7 @@ async function saveImage(file: File): Promise<string> {
   }
 
   const sanitizedName = sanitizeFilename(file.name);
-  const extension = file.name.split('.').pop() || 'jpg';
+  const extension = sanitizedName.split('.').pop() || 'jpg';
   const timestamp = Date.now();
   const random = Math.random().toString(36).substring(2, 9);
   const filename = `${timestamp}-${random}.${extension}`;

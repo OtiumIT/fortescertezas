@@ -12,6 +12,23 @@ export function useSEO({ title, description, keywords }: SEOData) {
     const originalMetaDescription = document.querySelector('meta[name="description"]')?.getAttribute('content');
     const originalMetaKeywords = document.querySelector('meta[name="keywords"]')?.getAttribute('content');
 
+    // Garantir que as meta tags noindex/nofollow sempre existam
+    let metaRobots = document.querySelector('meta[name="robots"]');
+    if (!metaRobots) {
+      metaRobots = document.createElement('meta');
+      metaRobots.setAttribute('name', 'robots');
+      document.head.appendChild(metaRobots);
+    }
+    metaRobots.setAttribute('content', 'noindex, nofollow, noarchive, nosnippet, noimageindex');
+
+    let metaGooglebot = document.querySelector('meta[name="googlebot"]');
+    if (!metaGooglebot) {
+      metaGooglebot = document.createElement('meta');
+      metaGooglebot.setAttribute('name', 'googlebot');
+      document.head.appendChild(metaGooglebot);
+    }
+    metaGooglebot.setAttribute('content', 'noindex, nofollow, noarchive, nosnippet, noimageindex');
+
     if (title) {
       document.title = `${title} | Fortes Certezas`;
     }

@@ -34,4 +34,7 @@ export interface CreatePostInput {
   tags?: string[];
 }
 
-export interface UpdatePostInput extends Partial<CreatePostInput> {}
+export interface UpdatePostInput extends Partial<CreatePostInput> {
+  publishedAt?: string;
+  updatedAt?: string;
+}
