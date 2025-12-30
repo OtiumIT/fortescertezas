@@ -190,7 +190,12 @@ export const env = new Proxy({} as EnvConfig, {
   get(_target, prop) {
     // Se há um envConfig global (criado via createEnv(workerEnv)), usa ele
     if (globalEnvConfig) {
-      return globalEnvConfig[prop as keyof EnvConfig];
+      const value = globalEnvConfig[prop as keyof EnvConfig];
+      // Log apenas para variáveis críticas do Supabase
+      if ((prop === 'SUPABASE_URL' || prop === 'SUPABASE_ANON_KEY') && !value) {
+        console.error(`[env] ⚠️ ${prop} não está configurado no globalEnvConfig`);
+      }
+      return value;
     }
     
     // Caso contrário, tenta detectar se está em Worker e acessar workerEnv
@@ -207,6 +212,16 @@ export const env = new Proxy({} as EnvConfig, {
     }
     
     // Fallback para getDefaultEnv
-    return getDefaultEnv()[prop as keyof EnvConfig];
+    const defaultValue = getDefaultEnv()[prop as keyof EnvConfig];
+    
+    // Em produção (Workers), se não há globalEnvConfig e está tentando acessar Supabase, loga erro
+    if (typeof process === 'undefined' && (prop === 'SUPABASE_URL' || prop === 'SUPABASE_ANON_KEY') && !defaultValue) {
+      console.error(`[env] ❌ ERRO CRÍTICO: ${prop} não está configurado!`);
+      console.error('[env] Isso geralmente significa que:');
+      console.error('[env] 1. As variáveis não foram configuradas como Secrets no Cloudflare');
+      console.error('[env] 2. Ou o setGlobalEnv não foi chamado antes do acesso');
+    }
+    
+    return defaultValue;
   },
 });
