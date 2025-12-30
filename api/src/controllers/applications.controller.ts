@@ -98,11 +98,16 @@ export async function handleCreateApplication(c: Context): Promise<Response> {
     const email = formData.get('email') as string;
     const phone = formData.get('phone') as string;
     const message = formData.get('message') as string | null;
-    const resume = formData.get('resume') as File;
-
-    if (!resume) {
+    const resumeInput = formData.get('resume');
+    if (!resumeInput) {
       throw new Error('Currículo é obrigatório');
     }
+    // FormData.get retorna File | string | null, verificamos se é File
+    if (typeof resumeInput === 'string') {
+      throw new Error('Currículo deve ser um arquivo');
+    }
+    const resume = resumeInput as File;
+
 
     if (resume.type !== 'application/pdf') {
       throw new Error('Currículo deve ser um arquivo PDF');

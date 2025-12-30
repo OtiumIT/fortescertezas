@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import { logger } from 'hono/logger';
 import { swaggerUI } from '@hono/swagger-ui';
-import { corsMiddleware } from './middleware/cors.middleware.js';
+import { corsMiddleware, createCorsMiddleware } from './middleware/cors.middleware.js';
 import { errorHandlerMiddleware } from './middleware/error-handler.middleware.js';
 import routes from './routes/index.js';
 import { createEnv, env } from './config/env.js';
@@ -10,7 +10,7 @@ import { API_BASE_PATH } from './config/constants.js';
 
 // Importação condicional para Node.js (desenvolvimento local)
 // Em Workers, isso será ignorado
-let serve: typeof import('@hono/node-server').serve | null = null;
+let serve: any = null;
 if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production') {
   import('@hono/node-server').then((nodeServer) => {
     serve = nodeServer.serve;
@@ -19,10 +19,11 @@ if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production') {
   });
 }
 
+// App base (será usado em Node.js)
 const app = new Hono();
 
 app.use('*', logger());
-// CORS será aplicado no handler quando tivermos acesso ao workerEnv
+app.use('*', corsMiddleware);
 app.use('*', errorHandlerMiddleware);
 
 // Swagger UI - Documentação pública da API
@@ -252,17 +253,40 @@ app.get('/health', (c) => {
 // Handler para Cloudflare Workers
 export default {
   async fetch(request: Request, workerEnv: Env, ctx: ExecutionContext): Promise<Response> {
-    // Cria env a partir do workerEnv e injeta no contexto do Hono
+    // Cria env a partir do workerEnv (necessário para criar o CORS middleware)
     const envConfig = createEnv(workerEnv);
     
-    // Injeta envConfig no request para uso nos handlers
-    // (pode ser acessado via c.env se necessário)
-    return app.fetch(request, workerEnv, ctx);
+    // Armazena envConfig no contexto para uso nos handlers se necessário
+    // (pode ser acessado via c.env se configurado)
+    
+    // Cria app com CORS configurado corretamente para Workers
+    const workerApp = new Hono();
+    workerApp.use('*', logger());
+    workerApp.use('*', createCorsMiddleware(envConfig));
+    workerApp.use('*', errorHandlerMiddleware);
+    
+    // Replica todas as rotas do app principal
+    workerApp.get('/docs', swaggerUI({ url: '/api-docs.json' }));
+    workerApp.get('/api-docs.json', app.routes.find(r => r.path === '/api-docs.json')?.handler || (() => new Response('Not Found', { status: 404 })));
+    workerApp.route('/', routes);
+    workerApp.get('/sitemap.xml', async (c) => {
+      const { handleGetSitemap } = await import('./controllers/feeds.controller.js');
+      return handleGetSitemap(c);
+    });
+    workerApp.get('/feed/rss', async (c) => {
+      const { handleGetRSSFeed } = await import('./controllers/feeds.controller.js');
+      return handleGetRSSFeed(c);
+    });
+    workerApp.get('/health', (c) => {
+      return c.json({ status: 'ok', timestamp: new Date().toISOString() });
+    });
+    
+    return workerApp.fetch(request, workerEnv, ctx);
   },
 };
 
 // Para desenvolvimento local com Node.js
-if (typeof process !== 'undefined' && serve && process.env.NODE_ENV !== 'production') {
+if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production') {
   const port = env.PORT;
 
   // Captura erros não tratados e rejeições de promessas
@@ -277,16 +301,21 @@ if (typeof process !== 'undefined' && serve && process.env.NODE_ENV !== 'product
 
   logInfo(`Server starting on port ${port}`, { port, nodeEnv: env.NODE_ENV });
 
-  // Inicia o servidor HTTP
-  serve({
-    fetch: app.fetch,
-    port,
-  }, (info) => {
-    logInfo(`🚀 Server is running on http://localhost:${info.port}`, { 
-      port: info.port,
-      address: info.address 
-    });
-    console.log(`📚 Swagger UI available at http://localhost:${info.port}/docs`);
-    console.log(`❤️  Health check at http://localhost:${info.port}/health`);
-  });
+  // Aguarda um pouco para garantir que serve foi carregado
+  setTimeout(() => {
+    if (serve) {
+      // Inicia o servidor HTTP
+      serve({
+        fetch: app.fetch,
+        port,
+      }, (info: { port: number; address: string }) => {
+        logInfo(`🚀 Server is running on http://localhost:${info.port}`, { 
+          port: info.port,
+          address: info.address 
+        });
+        console.log(`📚 Swagger UI available at http://localhost:${info.port}/docs`);
+        console.log(`❤️  Health check at http://localhost:${info.port}/health`);
+      });
+    }
+  }, 100);
 }

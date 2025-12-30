@@ -24,7 +24,7 @@ if (typeof process !== 'undefined') {
   }).catch(() => {});
 }
 
-interface EnvConfig {
+export interface EnvConfig {
   PORT: number;
   NODE_ENV: string;
   JWT_SECRET: string;
@@ -37,6 +37,7 @@ interface EnvConfig {
 }
 
 // Função para obter env de Workers ou Node.js
+// O tipo Env é definido em src/env.d.ts e está disponível globalmente
 function getEnv(workerEnv?: Env): EnvConfig {
   // Detecta se está em Workers (tem workerEnv) ou Node.js (tem process.env)
   const isWorker = workerEnv !== undefined;

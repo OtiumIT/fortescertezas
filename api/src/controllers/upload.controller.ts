@@ -44,7 +44,15 @@ async function saveImage(file: File): Promise<string> {
 export async function handleUploadImage(c: Context): Promise<Response> {
   try {
     const formData = await c.req.formData();
-    const file = formData.get('file') as File;
+    const fileInput = formData.get('file');
+    if (!fileInput) {
+      return c.json({ error: 'Arquivo não fornecido' }, 400);
+    }
+    // FormData.get retorna File | string | null, verificamos se é File
+    if (typeof fileInput === 'string') {
+      return c.json({ error: 'Arquivo inválido' }, 400);
+    }
+    const file = fileInput as File;
 
     if (!file) {
       return c.json(
