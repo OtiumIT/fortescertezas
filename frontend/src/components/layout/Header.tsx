@@ -21,9 +21,22 @@ export function Header() {
             <img
               src={logoUrl}
               alt="Fortes Certezas"
-              className="h-16 object-contain transition-transform group-hover:scale-105"
+              className="h-16 object-contain transition-transform group-hover:scale-105 flex-shrink-0"
             />
-            <div className="hidden lg:flex flex-col">
+            {/* Mobile: Layout em 3 linhas (igual ao admin) */}
+            <div className="flex flex-col gap-0 md:hidden">
+              <h1 className="text-base font-bold text-neutral-900 leading-none">
+                <span className="text-primary-500">F</span>ORTES
+              </h1>
+              <h1 className="text-base font-bold text-neutral-900 leading-none">
+                <span className="text-primary-500">C</span>ERTEZAS
+              </h1>
+              <p className="text-xs text-neutral-500 mt-1">
+                Supervisão | Portarias | Condomínios
+              </p>
+            </div>
+            {/* Desktop: Layout original em uma linha */}
+            <div className="hidden md:flex flex-col">
               <h1 className="text-xl font-bold text-neutral-900 leading-tight">
                 <span className="text-primary-500">F</span>ORTES{' '}
                 <span className="text-primary-500">C</span>ERTEZAS,{' '}

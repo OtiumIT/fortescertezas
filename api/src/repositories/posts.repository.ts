@@ -1,68 +1,62 @@
-import {
-  readJsonFile,
-  appendToJsonArray,
-  updateJsonArrayItem,
-  deleteJsonArrayItem,
-  findJsonArrayItem,
-} from '../lib/json-storage.js';
+// Usa apenas Supabase
+import * as supabaseRepo from './supabase/posts.repository.js';
 import type { Post } from '../types/post.types.js';
+import { env } from '../config/env.js';
 
-const POSTS_FILE = 'posts.json';
+function ensureSupabaseConfigured(): void {
+  console.log('[posts.repository] Verificando configuração do Supabase...');
+  console.log('[posts.repository] SUPABASE_URL:', !!env.SUPABASE_URL, env.SUPABASE_URL ? `${env.SUPABASE_URL.substring(0, 30)}...` : 'NÃO CONFIGURADO');
+  console.log('[posts.repository] SUPABASE_ANON_KEY:', !!env.SUPABASE_ANON_KEY, env.SUPABASE_ANON_KEY ? `${env.SUPABASE_ANON_KEY.substring(0, 20)}...` : 'NÃO CONFIGURADO');
+  
+  if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) {
+    throw new Error('Supabase não está configurado. Configure SUPABASE_URL e SUPABASE_ANON_KEY nas variáveis de ambiente.');
+  }
+  
+  console.log('[posts.repository] Supabase configurado corretamente');
+}
 
 export async function getAllPosts(): Promise<Post[]> {
-  return readJsonFile<Post[]>(POSTS_FILE, {
-    createIfNotExists: true,
-    defaultData: [],
-  });
+  ensureSupabaseConfigured();
+  console.log('[posts.repository] Buscando posts do Supabase...');
+  const posts = await supabaseRepo.getAllPosts();
+  console.log(`[posts.repository] Retornando ${posts.length} posts do Supabase`);
+  return posts;
 }
 
 export async function getPostById(id: string): Promise<Post | null> {
-  return findJsonArrayItem<Post>(POSTS_FILE, id);
+  ensureSupabaseConfigured();
+  return await supabaseRepo.getPostById(id);
 }
 
 export async function getPostBySlug(slug: string): Promise<Post | null> {
-  const posts = await getAllPosts();
-  return posts.find((post) => post.slug === slug) || null;
+  ensureSupabaseConfigured();
+  return await supabaseRepo.getPostBySlug(slug);
 }
 
 export async function getActivePosts(): Promise<Post[]> {
-  const posts = await getAllPosts();
-  return posts
-    .filter((post) => post.active)
-    .sort((a, b) => {
-      const dateA = new Date(a.publishedAt || 0).getTime();
-      const dateB = new Date(b.publishedAt || 0).getTime();
-      return dateB - dateA; // Mais recentes primeiro
-    });
+  ensureSupabaseConfigured();
+  return await supabaseRepo.getActivePosts();
 }
 
 export async function getFeaturedPosts(limit: number = 3): Promise<Post[]> {
-  const posts = await getActivePosts();
-  const featured = posts.filter((post) => post.featured);
-  
-  // Se houver posts featured suficientes, retorna apenas eles
-  if (featured.length >= limit) {
-    return featured.slice(0, limit);
-  }
-  
-  // Se não houver suficientes, completa com posts ativos (não featured) até o limite
-  const nonFeatured = posts.filter((post) => !post.featured);
-  const result = [...featured, ...nonFeatured];
-  
-  return result.slice(0, limit);
+  ensureSupabaseConfigured();
+  return await supabaseRepo.getFeaturedPosts(limit);
 }
 
 export async function createPost(post: Post): Promise<Post> {
-  return appendToJsonArray<Post>(POSTS_FILE, post);
+  ensureSupabaseConfigured();
+  return await supabaseRepo.createPost(post);
 }
 
 export async function updatePost(
   id: string,
   updates: Partial<Post>
 ): Promise<Post | null> {
-  return updateJsonArrayItem<Post>(POSTS_FILE, id, updates);
+  ensureSupabaseConfigured();
+  return await supabaseRepo.updatePost(id, updates);
 }
 
 export async function deletePost(id: string): Promise<boolean> {
-  return deleteJsonArrayItem<Post>(POSTS_FILE, id);
+  ensureSupabaseConfigured();
+  return await supabaseRepo.deletePost(id);
 }

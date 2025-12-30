@@ -38,7 +38,7 @@ function createRateLimitMiddleware(
   return async function rateLimitMiddleware(
     c: Context,
     next: Next
-  ): Promise<Response> {
+  ): Promise<void | Response> {
     const limit = RATE_LIMITS[type];
     const identifier = getClientIdentifier(c);
     const now = Date.now();
@@ -65,7 +65,6 @@ function createRateLimitMiddleware(
 
     record.count += 1;
     await next();
-    return;
   };
 }
 

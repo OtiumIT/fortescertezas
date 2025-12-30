@@ -7,7 +7,7 @@ main = "src/index.ts"
 
 # Variáveis de ambiente (aplicadas em produção e desenvolvimento local)
 # IMPORTANTE: Estas variáveis são versionadas no código
-# Secrets (JWT_SECRET, ADMIN_PASSWORD) devem ser configurados como Secrets no Cloudflare
+# Secrets (JWT_SECRET, ADMIN_PASSWORD, SUPABASE_URL, SUPABASE_ANON_KEY) devem ser configurados como Secrets no Cloudflare
 [vars]
 NODE_ENV = "production"
 CORS_ORIGIN = "https://fcu.otiumit.com.br,https://www.fcu.otiumit.com.br"
@@ -36,5 +36,13 @@ local_protocol = "http"
 # Secrets a configurar (NÃO vão no .toml por segurança):
 # - JWT_SECRET=sua-chave-secreta-muito-forte (OBRIGATÓRIO)
 # - ADMIN_PASSWORD=sua-senha-segura (OBRIGATÓRIO)
+# - SUPABASE_URL=https://seu-projeto.supabase.co (OBRIGATÓRIO para usar Supabase)
+# - SUPABASE_ANON_KEY=sua-chave-anon-do-supabase (OBRIGATÓRIO para usar Supabase)
+# - SUPABASE_SERVICE_KEY=sua-service-key-do-supabase (Opcional, para operações administrativas)
 #
 # Nota: As outras variáveis (CORS_ORIGIN, NODE_ENV, etc.) estão configuradas acima em [vars]
+#
+# Para migrar dados JSON para Supabase:
+# 1. Execute o schema SQL em api/supabase/schema.sql no SQL Editor do Supabase
+# 2. Configure SUPABASE_URL e SUPABASE_ANON_KEY como secrets
+# 3. Execute: npm run migrate-to-supabase

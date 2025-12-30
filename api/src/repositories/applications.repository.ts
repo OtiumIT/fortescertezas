@@ -1,41 +1,43 @@
-import {
-  readJsonFile,
-  appendToJsonArray,
-  updateJsonArrayItem,
-  deleteJsonArrayItem,
-  findJsonArrayItem,
-} from '../lib/json-storage.js';
+// Usa apenas Supabase
+import * as supabaseRepo from './supabase/applications.repository.js';
 import type { Application } from '../types/application.types.js';
+import { env } from '../config/env.js';
 
-const APPLICATIONS_FILE = 'applications.json';
+function ensureSupabaseConfigured(): void {
+  if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) {
+    throw new Error('Supabase não está configurado. Configure SUPABASE_URL e SUPABASE_ANON_KEY nas variáveis de ambiente.');
+  }
+}
 
-export async function getAllApplications(): Promise<Application[]> {
-  return readJsonFile<Application[]>(APPLICATIONS_FILE, {
-    createIfNotExists: true,
-    defaultData: [],
-  });
+export async function getAllApplications(filters?: { jobId?: string; status?: string }): Promise<Application[]> {
+  ensureSupabaseConfigured();
+  return await supabaseRepo.getAllApplications(filters);
 }
 
 export async function getApplicationById(id: string): Promise<Application | null> {
-  return findJsonArrayItem<Application>(APPLICATIONS_FILE, id);
+  ensureSupabaseConfigured();
+  return await supabaseRepo.getApplicationById(id);
 }
 
 export async function getApplicationsByJobId(jobId: string): Promise<Application[]> {
-  const applications = await getAllApplications();
-  return applications.filter((app) => app.jobId === jobId);
+  ensureSupabaseConfigured();
+  return await supabaseRepo.getAllApplications({ jobId });
 }
 
 export async function createApplication(application: Application): Promise<Application> {
-  return appendToJsonArray<Application>(APPLICATIONS_FILE, application);
+  ensureSupabaseConfigured();
+  return await supabaseRepo.createApplication(application);
 }
 
 export async function updateApplication(
   id: string,
   updates: Partial<Application>
 ): Promise<Application | null> {
-  return updateJsonArrayItem<Application>(APPLICATIONS_FILE, id, updates);
+  ensureSupabaseConfigured();
+  return await supabaseRepo.updateApplication(id, updates);
 }
 
 export async function deleteApplication(id: string): Promise<boolean> {
-  return deleteJsonArrayItem<Application>(APPLICATIONS_FILE, id);
+  ensureSupabaseConfigured();
+  return await supabaseRepo.deleteApplication(id);
 }

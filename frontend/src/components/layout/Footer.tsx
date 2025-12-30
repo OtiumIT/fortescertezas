@@ -16,23 +16,46 @@ export function Footer() {
           {/* Company Info */}
           <div className="lg:col-span-2">
             <div className="flex flex-col md:flex-row items-start gap-4 mb-6">
-              <img
-                src={logoUrl}
-                alt="Fortes Certezas"
-                className="h-20 object-contain flex-shrink-0"
-              />
-              <div className="flex-1">
-                <h2 className="text-xl font-bold text-neutral-900 mb-2 leading-tight">
-                  <span className="text-primary-500">F</span>ORTES{' '}
-                  <span className="text-primary-500">C</span>ERTEZAS,{' '}
-                  <span className="font-normal text-neutral-700">Unipessoal Lda.</span>
-                </h2>
-                <p className="text-sm text-neutral-500 mb-4">
-                  Supervisão | Portarias | Condomínios
-                </p>
-                <p className="text-neutral-600 leading-relaxed max-w-md">
-                  Mais de 20 anos de experiência em serviços de portaria e controlo de acessos em Matosinhos e Porto.
-                </p>
+              {/* Mobile: Layout igual ao admin (logo + 3 linhas) */}
+              <div className="flex items-end gap-3 md:hidden">
+                <img
+                  src={logoUrl}
+                  alt="Fortes Certezas"
+                  className="h-16 object-contain flex-shrink-0"
+                />
+                <div className="flex flex-col gap-0">
+                  <h2 className="text-lg font-bold text-neutral-900 leading-none">
+                    <span className="text-primary-500">F</span>ORTES
+                  </h2>
+                  <h2 className="text-lg font-bold text-neutral-900 leading-none">
+                    <span className="text-primary-500">C</span>ERTEZAS
+                  </h2>
+                  <p className="text-xs text-neutral-500 mt-1">
+                    Supervisão | Portarias | Condomínios
+                  </p>
+                </div>
+              </div>
+              
+              {/* Desktop: Layout original */}
+              <div className="hidden md:flex flex-col md:flex-row items-start gap-4">
+                <img
+                  src={logoUrl}
+                  alt="Fortes Certezas"
+                  className="h-20 object-contain flex-shrink-0"
+                />
+                <div className="flex-1">
+                  <h2 className="text-xl font-bold text-neutral-900 mb-2 leading-tight">
+                    <span className="text-primary-500">F</span>ORTES{' '}
+                    <span className="text-primary-500">C</span>ERTEZAS,{' '}
+                    <span className="font-normal text-neutral-700">Unipessoal Lda.</span>
+                  </h2>
+                  <p className="text-sm text-neutral-500 mb-4">
+                    Supervisão | Portarias | Condomínios
+                  </p>
+                  <p className="text-neutral-600 leading-relaxed max-w-md">
+                    Mais de 20 anos de experiência em serviços de portaria e controlo de acessos em Matosinhos e Porto.
+                  </p>
+                </div>
               </div>
             </div>
           </div>

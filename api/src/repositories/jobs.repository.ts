@@ -1,51 +1,50 @@
-import {
-  readJsonFile,
-  appendToJsonArray,
-  updateJsonArrayItem,
-  deleteJsonArrayItem,
-  findJsonArrayItem,
-} from '../lib/json-storage.js';
+// Usa apenas Supabase
+import * as supabaseRepo from './supabase/jobs.repository.js';
 import type { Job } from '../types/job.types.js';
+import { env } from '../config/env.js';
 
-const JOBS_FILE = 'jobs.json';
+function ensureSupabaseConfigured(): void {
+  if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) {
+    throw new Error('Supabase não está configurado. Configure SUPABASE_URL e SUPABASE_ANON_KEY nas variáveis de ambiente.');
+  }
+}
 
 export async function getAllJobs(): Promise<Job[]> {
-  return readJsonFile<Job[]>(JOBS_FILE, {
-    createIfNotExists: true,
-    defaultData: [],
-  });
+  ensureSupabaseConfigured();
+  return await supabaseRepo.getAllJobs();
 }
 
 export async function getJobById(id: string): Promise<Job | null> {
-  return findJsonArrayItem<Job>(JOBS_FILE, id);
+  ensureSupabaseConfigured();
+  return await supabaseRepo.getJobById(id);
 }
 
 export async function getActiveJobs(): Promise<Job[]> {
-  const jobs = await getAllJobs();
-  const now = new Date().toISOString().split('T')[0];
-  return jobs.filter((job) => {
-    if (!job.active) return false;
-    if (job.expiresAt && job.expiresAt < now) return false;
-    return true;
-  });
+  ensureSupabaseConfigured();
+  // Supabase já filtra por active
+  return await supabaseRepo.getAllJobs();
 }
 
 export async function createJob(job: Job): Promise<Job> {
-  return appendToJsonArray<Job>(JOBS_FILE, job);
+  ensureSupabaseConfigured();
+  return await supabaseRepo.createJob(job);
 }
 
 export async function updateJob(
   id: string,
   updates: Partial<Job>
 ): Promise<Job | null> {
-  return updateJsonArrayItem<Job>(JOBS_FILE, id, updates);
+  ensureSupabaseConfigured();
+  return await supabaseRepo.updateJob(id, updates);
 }
 
 export async function deleteJob(id: string): Promise<boolean> {
-  return deleteJsonArrayItem<Job>(JOBS_FILE, id);
+  ensureSupabaseConfigured();
+  return await supabaseRepo.deleteJob(id);
 }
 
 export async function incrementJobApplicationsCount(jobId: string): Promise<void> {
+  ensureSupabaseConfigured();
   const job = await getJobById(jobId);
   if (job) {
     const currentCount = job.applicationsCount || 0;

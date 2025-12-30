@@ -16,6 +16,10 @@ declare global {
     ADMIN_USERNAME?: string;
     ADMIN_PASSWORD?: string;
     PORT?: string;
+    // Supabase
+    SUPABASE_URL?: string;
+    SUPABASE_ANON_KEY?: string;
+    SUPABASE_SERVICE_KEY?: string;
   }
 }
 

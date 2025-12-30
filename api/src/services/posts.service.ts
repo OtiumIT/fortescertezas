@@ -23,11 +23,18 @@ function generateSlug(title: string): string {
 }
 
 export async function getAllPosts(activeOnly: boolean = false): Promise<Post[]> {
+  console.log(`[posts.service] getAllPosts chamado, activeOnly: ${activeOnly}`);
   if (activeOnly) {
-    return getActivePostsRepo();
+    console.log('[posts.service] Buscando apenas posts ativos');
+    const posts = await getActivePostsRepo();
+    console.log(`[posts.service] Retornando ${posts.length} posts ativos`);
+    return posts;
   }
 
-  return getAllPostsRepo();
+  console.log('[posts.service] Buscando todos os posts');
+  const posts = await getAllPostsRepo();
+  console.log(`[posts.service] Retornando ${posts.length} posts (todos)`);
+  return posts;
 }
 
 export async function getPostById(id: string): Promise<Post> {

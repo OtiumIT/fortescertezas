@@ -37,6 +37,9 @@ export interface EnvConfig {
   UPLOADS_DIR: string;
   ADMIN_USERNAME: string;
   ADMIN_PASSWORD: string;
+  SUPABASE_URL: string;
+  SUPABASE_ANON_KEY: string;
+  SUPABASE_SERVICE_KEY?: string; // Para operações administrativas
 }
 
 /// <reference path="../env.d.ts" />
@@ -47,6 +50,8 @@ function getEnv(workerEnv?: Env): EnvConfig {
   // Detecta se está em Workers (tem workerEnv) ou Node.js (tem process.env)
   const isWorker = workerEnv !== undefined;
   const envSource = isWorker ? workerEnv : (process.env as Record<string, string | undefined>);
+  
+  console.log('[env.getEnv] isWorker:', isWorker, 'SUPABASE_URL:', !!envSource.SUPABASE_URL, 'SUPABASE_ANON_KEY:', !!envSource.SUPABASE_ANON_KEY);
 
   const port = parseInt(envSource.PORT || '3007', 10);
   const nodeEnv = envSource.NODE_ENV || (isWorker ? 'production' : 'development');
@@ -82,6 +87,9 @@ function getEnv(workerEnv?: Env): EnvConfig {
   
   const adminUsername = envSource.ADMIN_USERNAME || 'admin';
   const adminPassword = envSource.ADMIN_PASSWORD || 'admin123';
+  const supabaseUrl = envSource.SUPABASE_URL || '';
+  const supabaseAnonKey = envSource.SUPABASE_ANON_KEY || '';
+  const supabaseServiceKey = envSource.SUPABASE_SERVICE_KEY;
 
   // Se não tiver JWT_SECRET, retorna valores padrão (durante deploy do Worker)
   // O JWT_SECRET será fornecido via workerEnv quando o handler for chamado
@@ -96,6 +104,9 @@ function getEnv(workerEnv?: Env): EnvConfig {
       UPLOADS_DIR: uploadsDir,
       ADMIN_USERNAME: adminUsername,
       ADMIN_PASSWORD: adminPassword,
+      SUPABASE_URL: supabaseUrl,
+      SUPABASE_ANON_KEY: supabaseAnonKey,
+      SUPABASE_SERVICE_KEY: supabaseServiceKey,
     };
   }
 
@@ -109,6 +120,9 @@ function getEnv(workerEnv?: Env): EnvConfig {
     UPLOADS_DIR: uploadsDir,
     ADMIN_USERNAME: adminUsername,
     ADMIN_PASSWORD: adminPassword,
+    SUPABASE_URL: supabaseUrl,
+    SUPABASE_ANON_KEY: supabaseAnonKey,
+    SUPABASE_SERVICE_KEY: supabaseServiceKey,
   };
 }
 
@@ -138,6 +152,8 @@ function getDefaultEnv(): EnvConfig {
           UPLOADS_DIR: '/uploads',
           ADMIN_USERNAME: 'admin',
           ADMIN_PASSWORD: 'admin123',
+          SUPABASE_URL: '',
+          SUPABASE_ANON_KEY: '',
         };
       }
     } else {
@@ -152,15 +168,45 @@ function getDefaultEnv(): EnvConfig {
         UPLOADS_DIR: '/uploads',
         ADMIN_USERNAME: 'admin',
         ADMIN_PASSWORD: 'admin123',
+        SUPABASE_URL: '',
+        SUPABASE_ANON_KEY: '',
       };
     }
   }
   return _env;
 }
 
+// Variável global para armazenar envConfig quando criado via createEnv(workerEnv)
+let globalEnvConfig: EnvConfig | null = null;
+
+// Função para definir o envConfig global (chamada no handler do Worker)
+export function setGlobalEnv(envConfig: EnvConfig): void {
+  globalEnvConfig = envConfig;
+  console.log('[env] Global env configurado com workerEnv');
+}
+
 // Exporta como getter para manter compatibilidade
 export const env = new Proxy({} as EnvConfig, {
   get(_target, prop) {
+    // Se há um envConfig global (criado via createEnv(workerEnv)), usa ele
+    if (globalEnvConfig) {
+      return globalEnvConfig[prop as keyof EnvConfig];
+    }
+    
+    // Caso contrário, tenta detectar se está em Worker e acessar workerEnv
+    // No Wrangler dev, process.env tem as variáveis do .dev.vars
+    if (typeof process !== 'undefined' && process.env) {
+      // No Wrangler dev, as variáveis do .dev.vars estão em process.env
+      // Tenta criar env a partir do process.env diretamente
+      const envFromProcess = getEnv(); // getEnv() sem argumentos usa process.env
+      console.log('[env] Tentando usar process.env, SUPABASE_URL:', !!envFromProcess.SUPABASE_URL);
+      if (envFromProcess.SUPABASE_URL && envFromProcess.SUPABASE_ANON_KEY) {
+        console.log('[env] Usando env de process.env');
+        return envFromProcess[prop as keyof EnvConfig];
+      }
+    }
+    
+    // Fallback para getDefaultEnv
     return getDefaultEnv()[prop as keyof EnvConfig];
   },
 });

@@ -7,7 +7,7 @@ import { swaggerUI } from '@hono/swagger-ui';
 import { corsMiddleware, createCorsMiddleware } from './middleware/cors.middleware.js';
 import { errorHandlerMiddleware } from './middleware/error-handler.middleware.js';
 import routes from './routes/index.js';
-import { createEnv, env } from './config/env.js';
+import { createEnv, env, setGlobalEnv } from './config/env.js';
 import { logInfo } from './lib/logger.js';
 import { API_BASE_PATH } from './config/constants.js';
 
@@ -259,8 +259,8 @@ export default {
     // Cria env a partir do workerEnv (necessário para criar o CORS middleware)
     const envConfig = createEnv(workerEnv);
     
-    // Armazena envConfig no contexto para uso nos handlers se necessário
-    // (pode ser acessado via c.env se configurado)
+    // Define o envConfig global para que os repositórios possam acessá-lo
+    setGlobalEnv(envConfig);
     
     // Cria app com CORS configurado corretamente para Workers
     const workerApp = new Hono();
