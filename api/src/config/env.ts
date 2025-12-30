@@ -52,7 +52,7 @@ function getEnv(workerEnv?: Env): EnvConfig {
   const nodeEnv = envSource.NODE_ENV || (isWorker ? 'production' : 'development');
   const jwtSecret = envSource.JWT_SECRET;
   const jwtExpiresIn = envSource.JWT_EXPIRES_IN || '7d';
-  const corsOrigin = envSource.CORS_ORIGIN || 'http://localhost:5173';
+  const corsOrigin = envSource.CORS_ORIGIN || '*'; // Permite todas se não configurado
   
   // Em Workers, usa caminhos relativos ou absolutos simples
   // Em Node.js, resolve caminhos absolutos

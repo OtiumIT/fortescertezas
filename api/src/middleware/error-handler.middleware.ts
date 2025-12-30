@@ -6,17 +6,19 @@ import type { ApiError } from '../types/api.types.js';
 export async function errorHandlerMiddleware(
   c: Context,
   next: Next
-): Promise<Response> {
+): Promise<void | Response> {
   try {
     await next();
-    return c.res;
   } catch (error) {
     const requestId = c.req.header('x-request-id') || 'unknown';
     const route = c.req.path;
 
     logError('Unhandled error', error, { requestId, route });
 
-    const isDevelopment = process.env.NODE_ENV === 'development';
+    // Detecta ambiente de desenvolvimento (funciona em Workers e Node.js)
+    const isDevelopment = typeof process !== 'undefined' && 
+                         process.env && 
+                         process.env.NODE_ENV === 'development';
 
     if (error instanceof Error) {
       const apiError: ApiError = {
@@ -24,6 +26,7 @@ export async function errorHandlerMiddleware(
         code: 'INTERNAL_ERROR',
       };
 
+      // Em desenvolvimento, inclui stack trace para debug
       if (isDevelopment && error.stack) {
         apiError.details = { stack: error.stack };
       }

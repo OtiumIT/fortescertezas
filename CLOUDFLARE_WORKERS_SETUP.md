@@ -67,8 +67,9 @@ Na seção **Environment Variables**, adicione:
 
 **CORS_ORIGIN**
 - **Name**: `CORS_ORIGIN`
-- **Value**: `https://seudominio.com,https://www.seudominio.com` (substitua pelo seu domínio)
+- **Value**: `https://fcu.otiumit.com.br,https://www.fcu.otiumit.com.br,http://localhost:5173` (adicione todos os domínios que precisam acessar a API, separados por vírgula)
 - **Type**: Plain text
+- **Importante**: Inclua todas as variações do domínio (com/sem www, com/sem https)
 
 **NODE_ENV**
 - **Name**: `NODE_ENV`

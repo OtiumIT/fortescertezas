@@ -52,7 +52,7 @@ function createRateLimitMiddleware(
         resetTime: now + limit.windowMs,
       };
       await next();
-      return c.res;
+      return;
     }
 
     if (record.count >= limit.maxRequests) {
@@ -65,7 +65,7 @@ function createRateLimitMiddleware(
 
     record.count += 1;
     await next();
-    return c.res;
+    return;
   };
 }
 
