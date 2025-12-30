@@ -1,0 +1,80 @@
+{
+  "cores": {
+    "primaria": {
+      "nome": "Vermelho Principal",
+      "hex": "#e40000",
+      "rgb": "rgb(228, 0, 0)",
+      "uso": "Destaques, títulos, CTAs, primeira letra de palavras-chave",
+      "exemplo": "F e C em 'FORTES CERTEZAS'"
+    },
+    "secundaria": {
+      "nome": "Laranja Secundário",
+      "hex": "#f88306",
+      "rgb": "rgb(248, 131, 6)",
+      "uso": "Destaques secundários, elementos de interesse"
+    },
+    "texto": {
+      "principal": {
+        "nome": "Texto Principal",
+        "hex": "#777777",
+        "rgb": "rgb(119, 119, 119)",
+        "uso": "Texto corpo, descrições"
+      },
+      "escuro": {
+        "nome": "Texto Escuro",
+        "hex": "#000000",
+        "rgb": "rgb(0, 0, 0)",
+        "uso": "Títulos em fundos claros"
+      },
+      "claro": {
+        "nome": "Texto Claro",
+        "hex": "#ffffff",
+        "rgb": "rgb(255, 255, 255)",
+        "uso": "Texto em fundos escuros"
+      }
+    },
+    "fundo": {
+      "claro": {
+        "nome": "Fundo Claro",
+        "hex": "#ffffff",
+        "rgb": "rgb(255, 255, 255)",
+        "uso": "Fundo principal do site"
+      },
+      "escuro": {
+        "nome": "Fundo Escuro",
+        "hex": "#000000",
+        "rgb": "rgb(0, 0, 0)",
+        "uso": "Banners, elementos especiais"
+      }
+    }
+  },
+  "tipografia": {
+    "familia": "Arvo, Arial, Helvetica, 'Liberation Sans', FreeSans, sans-serif",
+    "tamanhos": {
+      "tituloGrande": "30px",
+      "tituloMedio": "25px",
+      "tituloPequeno": "20px",
+      "textoCorpo": "14px",
+      "textoPequeno": "12px"
+    },
+    "alturaLinha": {
+      "normal": "25px",
+      "ampliada": "28px"
+    }
+  },
+  "logo": {
+    "alturaHeader": "99px",
+    "anoCriacao": "2017",
+    "formato": "PNG com transparência",
+    "arquivos": {
+      "header": "logos/original/fortes certezas 2017 sf sletras_1.png",
+      "footer": "logos/original/fortes certezas 2017 sf sletras.png",
+      "favicon": "logos/original/object1316453987.png"
+    }
+  },
+  "observacoes": {
+    "importante": "Esta identidade visual já está estabelecida e é usada em uniformes e materiais da empresa. NÃO PODE SER ALTERADA sem autorização expressa.",
+    "fonte": "Capturado do site atual: www.fortescertezas.pt",
+    "data": "30/12/2025"
+  }
+}

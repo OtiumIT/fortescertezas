@@ -1,0 +1,107 @@
+/**
+ * Paleta de Cores - Fortes Certezas
+ * 
+ * ⚠️ ATENÇÃO: Estas cores são parte da identidade visual estabelecida
+ * e usada em uniformes. NÃO ALTERAR sem autorização.
+ * 
+ * Fonte: Site atual (www.fortescertezas.pt)
+ * Data: 30/12/2025
+ */
+
+:root {
+  /* Cores Principais */
+  --fc-vermelho-primario: #e40000;
+  --fc-laranja-secundario: #f88306;
+  
+  /* Cores de Texto */
+  --fc-texto-principal: #777777;
+  --fc-texto-escuro: #000000;
+  --fc-texto-claro: #ffffff;
+  
+  /* Cores de Fundo */
+  --fc-fundo-claro: #ffffff;
+  --fc-fundo-escuro: #000000;
+  
+  /* Tipografia */
+  --fc-fonte-familia: Arvo, Arial, Helvetica, 'Liberation Sans', FreeSans, sans-serif;
+  
+  /* Tamanhos de Fonte */
+  --fc-fonte-titulo-grande: 30px;
+  --fc-fonte-titulo-medio: 25px;
+  --fc-fonte-titulo-pequeno: 20px;
+  --fc-fonte-texto-corpo: 14px;
+  --fc-fonte-texto-pequeno: 12px;
+  
+  /* Altura de Linha */
+  --fc-linha-normal: 25px;
+  --fc-linha-ampliada: 28px;
+  
+  /* Logo */
+  --fc-logo-altura-header: 99px;
+}
+
+/* Classes Utilitárias de Cor */
+.fc-vermelho {
+  color: var(--fc-vermelho-primario);
+}
+
+.fc-laranja {
+  color: var(--fc-laranja-secundario);
+}
+
+.fc-texto-principal {
+  color: var(--fc-texto-principal);
+}
+
+.fc-texto-escuro {
+  color: var(--fc-texto-escuro);
+}
+
+.fc-texto-claro {
+  color: var(--fc-texto-claro);
+}
+
+.fc-bg-claro {
+  background-color: var(--fc-fundo-claro);
+}
+
+.fc-bg-escuro {
+  background-color: var(--fc-fundo-escuro);
+}
+
+/* Classes de Tipografia */
+.fc-fonte {
+  font-family: var(--fc-fonte-familia);
+}
+
+.fc-titulo-grande {
+  font-size: var(--fc-fonte-titulo-grande);
+  font-family: var(--fc-fonte-familia);
+}
+
+.fc-titulo-medio {
+  font-size: var(--fc-fonte-titulo-medio);
+  font-family: var(--fc-fonte-familia);
+}
+
+.fc-titulo-pequeno {
+  font-size: var(--fc-fonte-titulo-pequeno);
+  font-family: var(--fc-fonte-familia);
+}
+
+.fc-texto-corpo {
+  font-size: var(--fc-fonte-texto-corpo);
+  font-family: var(--fc-fonte-familia);
+  line-height: var(--fc-linha-normal);
+  color: var(--fc-texto-principal);
+}
+
+.fc-texto-pequeno {
+  font-size: var(--fc-fonte-texto-pequeno);
+  font-family: var(--fc-fonte-familia);
+}
+
+/* Estilo de Destaque (F e C em vermelho) */
+.fc-destaque-letra::first-letter {
+  color: var(--fc-vermelho-primario);
+}

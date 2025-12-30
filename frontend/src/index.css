@@ -1,0 +1,196 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-neutral-200;
+  }
+  
+  body {
+    @apply antialiased bg-white text-neutral-900;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Poppins', 'Inter', system-ui, sans-serif;
+    @apply font-semibold;
+  }
+}
+
+@layer components {
+  /* Botões modernos */
+  .btn {
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-xl font-semibold text-base transition-all duration-200;
+    @apply focus:outline-none focus:ring-2 focus:ring-offset-2;
+  }
+  
+  .btn-primary {
+    @apply bg-primary-500 text-white hover:bg-primary-600;
+    @apply focus:ring-primary-500;
+    @apply shadow-lg hover:shadow-xl transform hover:-translate-y-0.5;
+  }
+  
+  .btn-secondary {
+    @apply bg-accent-500 text-white hover:bg-accent-600;
+    @apply focus:ring-accent-500;
+    @apply shadow-lg hover:shadow-xl transform hover:-translate-y-0.5;
+  }
+  
+  .btn-outline {
+    @apply border-2 border-primary-500 text-primary-500 bg-transparent hover:bg-primary-500 hover:text-white;
+    @apply focus:ring-primary-500;
+  }
+  
+  .btn-ghost {
+    @apply text-neutral-700 hover:bg-neutral-100;
+  }
+
+  /* Cards modernos */
+  .card {
+    @apply bg-white rounded-2xl border border-neutral-100 overflow-hidden;
+    @apply transition-all duration-300;
+    box-shadow: 0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04);
+  }
+  
+  .card-hover {
+    @apply hover:-translate-y-1;
+  }
+  
+  .card-hover:hover {
+    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Inputs modernos */
+  .input {
+    @apply w-full px-4 py-3 rounded-xl border border-neutral-300;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+    @apply transition-all duration-200;
+    @apply placeholder:text-neutral-400;
+  }
+
+  /* Container moderno */
+  .container-modern {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Seção moderna */
+  .section {
+    @apply py-12 md:py-16 lg:py-20;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .gradient-primary {
+    background: linear-gradient(135deg, #dc2626 0%, #f97316 100%);
+  }
+  
+  .gradient-accent {
+    background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
+  }
+  
+  .text-gradient {
+    background: linear-gradient(135deg, #dc2626 0%, #f97316 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+/* Animações personalizadas */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.6s ease-out;
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.6s ease-out;
+}
+
+/* Scroll suave */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Seleção de texto personalizada */
+::selection {
+  @apply bg-primary-500 text-white;
+}
+
+::-moz-selection {
+  @apply bg-primary-500 text-white;
+}
+
+/* Hero placeholder - esconde quando imagem carrega */
+.hero-placeholder {
+  display: flex;
+}
+
+img[src="/images/hero-image.jpg"]:not([src=""]) ~ .hero-placeholder,
+img[src="/images/hero-image.jpg"][complete] ~ .hero-placeholder {
+  display: none;
+}
+
+/* Estilos para conteúdo markdown */
+.prose strong,
+.prose strong[class*="font-bold"] {
+  @apply font-bold text-neutral-900;
+}
+
+.prose em,
+.prose em[class*="italic"] {
+  @apply italic;
+}
+
+.prose p {
+  @apply mb-4 text-neutral-700 leading-relaxed;
+}
+
+.prose h1 {
+  @apply text-3xl font-bold text-neutral-900 mt-8 mb-4;
+}
+
+.prose h2 {
+  @apply text-2xl font-bold text-neutral-900 mt-8 mb-4;
+}
+
+.prose h3 {
+  @apply text-xl font-semibold text-neutral-900 mt-6 mb-3;
+}
+
+.prose ul {
+  @apply list-disc list-inside space-y-2 mb-4 ml-4;
+}
+
+.prose li {
+  @apply text-neutral-700;
+}
