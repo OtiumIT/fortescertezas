@@ -197,7 +197,7 @@ function HomepageForm({
   }
 
   function removeHero(index: number) {
-    const newHeroes = heroes.filter((_, i) => i !== index);
+    const newHeroes = heroes.filter((_: unknown, i: number) => i !== index);
     setValue('heroes', newHeroes);
   }
 
@@ -223,7 +223,7 @@ function HomepageForm({
         )}
 
         <div className="space-y-6">
-          {heroes.map((hero, index) => (
+          {heroes.map((hero: { title: string; subtitle: string; backgroundImage?: string }, index: number) => (
             <div key={index} className="border border-gray-200 rounded-lg p-6 bg-gray-50">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-800">Hero {index + 1}</h3>
@@ -266,7 +266,7 @@ function HomepageForm({
                 <FileUpload
                   label="Imagem do Hero"
                   value={hero.backgroundImage}
-                  onChange={(url) => setValue(`heroes.${index}.backgroundImage`, url)}
+                  onChange={(url: string) => setValue(`heroes.${index}.backgroundImage`, url)}
                 />
               </div>
             </div>

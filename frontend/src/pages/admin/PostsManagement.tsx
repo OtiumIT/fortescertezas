@@ -282,7 +282,7 @@ function PostForm({
         <FileUpload
           label="Imagem de Destaque (opcional)"
           value={watch('featuredImage')}
-          onChange={(url) => setValue('featuredImage', url)}
+          onChange={(url: string) => setValue('featuredImage', url)}
         />
         
         <div className="border-t pt-4">
@@ -306,7 +306,7 @@ function PostForm({
             <div key={index} className="flex gap-2 mb-2">
               <Input
                 value={tag}
-                onChange={(e) => updateTag(index, e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateTag(index, e.target.value)}
                 placeholder="Tag"
               />
               <Button

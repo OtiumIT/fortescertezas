@@ -21,7 +21,6 @@ import { JobsManagement } from './pages/admin/JobsManagement';
 import { PostsManagement } from './pages/admin/PostsManagement';
 import { ContactsList } from './pages/admin/ContactsList';
 import { ApplicationsList } from './pages/admin/ApplicationsList';
-import { ComingSoon } from './pages/admin/ComingSoon';
 import { PrivacyManagement } from './pages/admin/PrivacyManagement';
 import { ClientsManagement } from './pages/admin/ClientsManagement';
 import { ContractsManagement } from './pages/admin/ContractsManagement';

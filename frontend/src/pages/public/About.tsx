@@ -89,7 +89,7 @@ export function About() {
                 Os Nossos <span className="text-gradient">Valores</span>
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {content.values.map((value, index) => (
+                {content.values.map((value: { name: string; description: string; icon?: string }, index: number) => (
                   <div key={index} className="card card-hover p-8 text-center">
                     {value.icon && (
                       <div className="text-6xl mb-6 transform hover:scale-110 transition-transform">

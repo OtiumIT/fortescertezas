@@ -115,7 +115,7 @@ export function PostDetail() {
             {post.tags && post.tags.length > 0 && (
               <div className="mt-8 pt-8 border-t border-neutral-200">
                 <div className="flex flex-wrap gap-2">
-                  {post.tags.map((tag, index) => (
+                  {post.tags.map((tag: string, index: number) => (
                     <span
                       key={index}
                       className="px-3 py-1 bg-neutral-100 text-neutral-700 rounded-full text-sm"

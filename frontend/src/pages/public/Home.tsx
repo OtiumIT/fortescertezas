@@ -174,7 +174,7 @@ export function Home() {
             {/* Indicador de paginação */}
             {heroes.length > 1 && (
               <div className="absolute bottom-8 right-8 flex gap-2">
-                {heroes.map((_, index) => (
+                {heroes.map((_: unknown, index: number) => (
                   <button
                     key={index}
                     onClick={() => setCurrentHeroIndex(index)}
@@ -195,7 +195,7 @@ export function Home() {
         <section className="section bg-white">
           <div className="container-modern">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {content.highlights.map((highlight, index) => (
+              {content.highlights.map((highlight: { title: string; description: string; icon?: string }, index: number) => (
                 <div
                   key={index}
                   className="card card-hover p-6 text-center group"
@@ -254,7 +254,7 @@ export function Home() {
                     </p>
                     {service.features.length > 0 && (
                       <ul className="space-y-1.5 mb-4">
-                        {service.features.slice(0, 3).map((feature, idx) => (
+                        {service.features.slice(0, 3).map((feature: string, idx: number) => (
                           <li key={idx} className="text-sm text-neutral-600 flex items-start">
                             <svg className="w-5 h-5 text-primary-500 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />

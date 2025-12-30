@@ -231,7 +231,7 @@ function ServiceForm({
         <FileUpload
           label="Imagem"
           value={watch('image')}
-          onChange={(url) => setValue('image', url)}
+          onChange={(url: string) => setValue('image', url)}
         />
         <Input
           label="Ordem"

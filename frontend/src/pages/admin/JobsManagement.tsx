@@ -258,7 +258,7 @@ function JobForm({
             <div key={index} className="flex gap-2 mb-2">
               <Input
                 value={req}
-                onChange={(e) => updateRequirement(index, e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateRequirement(index, e.target.value)}
                 placeholder="Requisito"
               />
               <Button
