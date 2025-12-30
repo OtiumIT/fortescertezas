@@ -1,0 +1,36 @@
+name = "fortes-api"
+compatibility_date = "2024-12-30"
+compatibility_flags = ["nodejs_compat"]
+
+# Entry point para o Worker
+main = "src/index.ts"
+
+# Variáveis de ambiente para desenvolvimento local
+[vars]
+NODE_ENV = "production"
+
+# Porta para desenvolvimento local
+[dev]
+port = 8787
+local_protocol = "http"
+
+# IMPORTANTE: Secrets (API Keys, senhas, etc.) NÃO vão no .toml por segurança!
+# 
+# Para configurar secrets, use um dos métodos:
+# 
+# 1. Via CLI (recomendado):
+#    wrangler secret put JWT_SECRET
+#    wrangler secret put ADMIN_USERNAME
+#    wrangler secret put ADMIN_PASSWORD
+#
+# 2. Via Painel Cloudflare:
+#    Workers > seu-worker > Settings > Variables > Secrets
+#
+# Secrets a configurar:
+# - JWT_SECRET=sua-chave-secreta-muito-forte
+# - JWT_EXPIRES_IN=7d
+# - CORS_ORIGIN=https://seudominio.com,https://www.seudominio.com
+# - ADMIN_USERNAME=admin
+# - ADMIN_PASSWORD=sua-senha-segura
+# - DATA_DIR=/dados (caminho relativo aos arquivos JSON no bundle)
+# - UPLOADS_DIR=/uploads (para uploads, considere usar R2 Storage)

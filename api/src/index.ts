@@ -1,18 +1,28 @@
 import { Hono } from 'hono';
 import { logger } from 'hono/logger';
 import { swaggerUI } from '@hono/swagger-ui';
-import { serve } from '@hono/node-server';
 import { corsMiddleware } from './middleware/cors.middleware.js';
 import { errorHandlerMiddleware } from './middleware/error-handler.middleware.js';
 import routes from './routes/index.js';
-import { env } from './config/env.js';
+import { createEnv, env } from './config/env.js';
 import { logInfo } from './lib/logger.js';
 import { API_BASE_PATH } from './config/constants.js';
+
+// Importação condicional para Node.js (desenvolvimento local)
+// Em Workers, isso será ignorado
+let serve: typeof import('@hono/node-server').serve | null = null;
+if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production') {
+  import('@hono/node-server').then((nodeServer) => {
+    serve = nodeServer.serve;
+  }).catch(() => {
+    // Ignora se não estiver disponível (Workers)
+  });
+}
 
 const app = new Hono();
 
 app.use('*', logger());
-app.use('*', corsMiddleware);
+// CORS será aplicado no handler quando tivermos acesso ao workerEnv
 app.use('*', errorHandlerMiddleware);
 
 // Swagger UI - Documentação pública da API
@@ -29,7 +39,7 @@ app.get('/api-docs.json', (c) => {
     },
     servers: [
       {
-        url: `http://localhost:${env.PORT}`,
+        url: `http://localhost:${typeof process !== 'undefined' && process.env ? env.PORT : 8787}`,
         description: 'Servidor de desenvolvimento',
       },
     ],
@@ -239,29 +249,44 @@ app.get('/health', (c) => {
   return c.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-const port = env.PORT;
+// Handler para Cloudflare Workers
+export default {
+  async fetch(request: Request, workerEnv: Env, ctx: ExecutionContext): Promise<Response> {
+    // Cria env a partir do workerEnv e injeta no contexto do Hono
+    const envConfig = createEnv(workerEnv);
+    
+    // Injeta envConfig no request para uso nos handlers
+    // (pode ser acessado via c.env se necessário)
+    return app.fetch(request, workerEnv, ctx);
+  },
+};
 
-// Captura erros não tratados e rejeições de promessas
-process.on('uncaughtException', (error) => {
-  console.error('❌ Uncaught Exception:', error);
-  process.exit(1);
-});
+// Para desenvolvimento local com Node.js
+if (typeof process !== 'undefined' && serve && process.env.NODE_ENV !== 'production') {
+  const port = env.PORT;
 
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
-});
-
-logInfo(`Server starting on port ${port}`, { port, nodeEnv: env.NODE_ENV });
-
-// Inicia o servidor HTTP
-serve({
-  fetch: app.fetch,
-  port,
-}, (info) => {
-  logInfo(`🚀 Server is running on http://localhost:${info.port}`, { 
-    port: info.port,
-    address: info.address 
+  // Captura erros não tratados e rejeições de promessas
+  process.on('uncaughtException', (error) => {
+    console.error('❌ Uncaught Exception:', error);
+    process.exit(1);
   });
-  console.log(`📚 Swagger UI available at http://localhost:${info.port}/docs`);
-  console.log(`❤️  Health check at http://localhost:${info.port}/health`);
-});
+
+  process.on('unhandledRejection', (reason, promise) => {
+    console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
+  });
+
+  logInfo(`Server starting on port ${port}`, { port, nodeEnv: env.NODE_ENV });
+
+  // Inicia o servidor HTTP
+  serve({
+    fetch: app.fetch,
+    port,
+  }, (info) => {
+    logInfo(`🚀 Server is running on http://localhost:${info.port}`, { 
+      port: info.port,
+      address: info.address 
+    });
+    console.log(`📚 Swagger UI available at http://localhost:${info.port}/docs`);
+    console.log(`❤️  Health check at http://localhost:${info.port}/health`);
+  });
+}
