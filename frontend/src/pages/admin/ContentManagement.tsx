@@ -176,7 +176,7 @@ function HomepageForm({
   // Usa estado local para gerenciar heroes e sincroniza com o form
   const [heroes, setHeroes] = useState<HomepageHero[]>(heroesData);
   
-  const { register, handleSubmit, setValue, watch, reset } = useForm<HomepageContent>({
+  const { register, handleSubmit, setValue, reset } = useForm<HomepageContent>({
     defaultValues: {
       ...data,
       heroes: heroesData,

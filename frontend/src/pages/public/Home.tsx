@@ -15,7 +15,7 @@ export function Home() {
   const [seoContent, setSeoContent] = useState<SeoContent | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
-  const autoRotateIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const autoRotateIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const { contactInfo } = useContactInfo();
 
   useEffect(() => {
