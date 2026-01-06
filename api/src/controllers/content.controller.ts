@@ -29,8 +29,13 @@ export async function handleUpdateContent(c: Context): Promise<Response> {
       throw new AppError('Seção não especificada', HTTP_STATUS.BAD_REQUEST, 'INVALID_SECTION');
     }
 
+    console.log('[content.controller] Atualizando seção:', section);
     const body = await c.req.json();
+    console.log('[content.controller] Body recebido, tamanho:', JSON.stringify(body).length, 'bytes');
+    console.log('[content.controller] Body keys:', Object.keys(body).join(', '));
+    
     const updated = await updateContent(section, body);
+    console.log('[content.controller] Conteúdo atualizado com sucesso');
 
     const response: ApiResponse<SiteContent> = {
       data: updated,
@@ -38,6 +43,11 @@ export async function handleUpdateContent(c: Context): Promise<Response> {
 
     return c.json(response, HTTP_STATUS.OK);
   } catch (error) {
+    console.error('[content.controller] Erro ao atualizar conteúdo:', error);
+    if (error instanceof Error) {
+      console.error('[content.controller] Mensagem:', error.message);
+      console.error('[content.controller] Stack:', error.stack);
+    }
     return handleError(error, c);
   }
 }

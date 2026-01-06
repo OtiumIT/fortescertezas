@@ -57,23 +57,49 @@ export function FileUpload({
       reader.readAsDataURL(file);
 
       // Fazer upload
+      // NÃO definir Content-Type manualmente - o navegador define automaticamente com o boundary correto
       const response = await apiClient.post<ApiResponse<{ url: string; filename: string }>>(
         '/admin/upload',
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }
+        formData
       );
 
       const uploadedUrl = response.data.data.url;
       setPreview(uploadedUrl);
       onChange(uploadedUrl);
+      
+      // Resetar o input para permitir fazer upload da mesma imagem novamente ou outra imagem
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     } catch (error: any) {
       console.error('Error uploading file:', error);
-      alert(error.response?.data?.error || 'Erro ao fazer upload da imagem');
+      console.error('Error response:', error.response);
+      console.error('Error status:', error.response?.status);
+      console.error('Error data:', error.response?.data);
+      console.error('Error data stringified:', JSON.stringify(error.response?.data, null, 2));
+      console.error('Full error:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
+      
+      // Extrai mensagem de erro mais detalhada
+      let errorMessage = 'Erro ao fazer upload da imagem';
+      if (error.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      // Mostra erro mais detalhado
+      const errorDetails = error.response?.data 
+        ? `\n\nDetalhes: ${JSON.stringify(error.response.data, null, 2)}`
+        : '';
+      alert(`Erro ao fazer upload: ${errorMessage}\n\nStatus: ${error.response?.status || 'Desconhecido'}${errorDetails}\n\nVerifique o console para mais detalhes.`);
       setPreview(null);
+      
+      // Resetar o input mesmo em caso de erro
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     } finally {
       setUploading(false);
     }

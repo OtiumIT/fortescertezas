@@ -173,16 +173,28 @@ function HomepageForm({
   // Garantir que heroes seja um array
   const heroesData = data.heroes || (data.hero ? [data.hero] : []);
   
-  const { register, handleSubmit, setValue, watch } = useForm<HomepageContent>({
+  // Usa estado local para gerenciar heroes e sincroniza com o form
+  const [heroes, setHeroes] = useState<HomepageHero[]>(heroesData);
+  
+  const { register, handleSubmit, setValue, watch, reset } = useForm<HomepageContent>({
     defaultValues: {
       ...data,
       heroes: heroesData,
     },
   });
 
-  const heroes = watch('heroes') || [];
+  // Atualiza o estado local quando os dados iniciais mudam
+  useEffect(() => {
+    const newHeroesData = data.heroes || (data.hero ? [data.hero] : []);
+    setHeroes(newHeroesData);
+    reset({
+      ...data,
+      heroes: newHeroesData,
+    });
+  }, [data, reset]);
 
   function addHero() {
+    console.log('[ContentManagement] addHero chamado, heroes.length:', heroes.length);
     if (heroes.length < 3) {
       const newHero: HomepageHero = {
         title: '',
@@ -192,13 +204,19 @@ function HomepageForm({
         ctaLink: '',
         backgroundImage: '',
       };
-      setValue('heroes', [...heroes, newHero]);
+      const updatedHeroes = [...heroes, newHero];
+      console.log('[ContentManagement] Adicionando hero, novo array length:', updatedHeroes.length);
+      setHeroes(updatedHeroes);
+      setValue('heroes', updatedHeroes, { shouldDirty: true, shouldValidate: false });
+    } else {
+      console.log('[ContentManagement] Limite de 3 heroes atingido');
     }
   }
 
   function removeHero(index: number) {
     const newHeroes = heroes.filter((_: unknown, i: number) => i !== index);
-    setValue('heroes', newHeroes);
+    setHeroes(newHeroes);
+    setValue('heroes', newHeroes, { shouldDirty: true, shouldValidate: false });
   }
 
   return (
@@ -224,7 +242,7 @@ function HomepageForm({
 
         <div className="space-y-6">
           {heroes.map((hero: { title: string; subtitle: string; backgroundImage?: string }, index: number) => (
-            <div key={index} className="border border-gray-200 rounded-lg p-6 bg-gray-50">
+            <div key={`hero-${index}-${hero.title || 'new'}`} className="border border-gray-200 rounded-lg p-6 bg-gray-50">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-800">Hero {index + 1}</h3>
                 <Button
@@ -264,6 +282,7 @@ function HomepageForm({
                   />
                 </div>
                 <FileUpload
+                  key={`hero-image-${index}`}
                   label="Imagem do Hero"
                   value={hero.backgroundImage}
                   onChange={(url: string) => setValue(`heroes.${index}.backgroundImage`, url)}

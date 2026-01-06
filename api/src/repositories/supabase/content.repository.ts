@@ -1,4 +1,6 @@
 import { getSupabaseClient } from '../../lib/supabase.js';
+import { env } from '../../config/env.js';
+import { createClient } from '@supabase/supabase-js';
 import type { SiteContent } from '../../types/content.types.js';
 
 const CONTENT_ID = 'main';
@@ -27,28 +29,63 @@ export async function updateSiteContent(
   section: keyof SiteContent,
   data: Partial<SiteContent[keyof SiteContent]>
 ): Promise<SiteContent> {
-  const supabase = getSupabaseClient();
+  console.log('[content] Atualizando seção:', section);
+  console.log('[content] Dados recebidos:', JSON.stringify(data, null, 2).substring(0, 500));
+  
+  // Usa SERVICE_KEY se disponível para bypassar RLS, senão usa ANON_KEY
+  const supabaseKey = env.SUPABASE_SERVICE_KEY || env.SUPABASE_ANON_KEY;
+  if (!env.SUPABASE_URL || !supabaseKey) {
+    throw new Error('Supabase não está configurado. Configure SUPABASE_URL e SUPABASE_ANON_KEY ou SUPABASE_SERVICE_KEY.');
+  }
+  
+  // Cria cliente com SERVICE_KEY para ter permissões completas (bypassa RLS)
+  const supabase = createClient(env.SUPABASE_URL, supabaseKey, {
+    auth: {
+      persistSession: false,
+    },
+  });
+  
+  if (env.SUPABASE_SERVICE_KEY) {
+    console.log('[content] Usando SUPABASE_SERVICE_KEY (bypassa RLS)');
+  } else {
+    console.warn('[content] Usando SUPABASE_ANON_KEY - pode precisar de políticas RLS configuradas');
+  }
+  
   const current = await getSiteContent();
   
+  console.log('[content] Conteúdo atual carregado');
+  
+  // Atualiza a seção específica
   const sectionData = current[section];
   if (sectionData && typeof sectionData === 'object' && !Array.isArray(sectionData)) {
+    // Se é um objeto, faz merge
     (current as any)[section] = { ...sectionData, ...data };
   } else {
+    // Se é array ou outro tipo, substitui completamente
     (current as any)[section] = data;
   }
 
-  const { error } = await supabase
+  console.log('[content] Conteúdo atualizado, fazendo upsert no Supabase...');
+  console.log('[content] Tamanho do JSON:', JSON.stringify(current).length, 'bytes');
+
+  const { data: upsertData, error } = await supabase
     .from('site_content')
     .upsert({
       id: CONTENT_ID,
       content: current,
       updated_at: new Date().toISOString(),
-    });
+    })
+    .select();
 
   if (error) {
-    throw new Error(`Failed to update site content: ${error.message}`);
+    console.error('[content] Erro ao fazer upsert:', error);
+    console.error('[content] Código do erro:', error.code);
+    console.error('[content] Mensagem:', error.message);
+    console.error('[content] Detalhes:', error.details);
+    throw new Error(`Failed to update site content: ${error.message} (code: ${error.code})`);
   }
 
+  console.log('[content] Conteúdo atualizado com sucesso');
   return current;
 }
 

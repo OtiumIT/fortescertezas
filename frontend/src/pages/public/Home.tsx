@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import apiClient from '@/lib/api-client';
 import { useSEO } from '@/hooks/useSEO';
@@ -15,6 +15,7 @@ export function Home() {
   const [seoContent, setSeoContent] = useState<SeoContent | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
+  const autoRotateIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const { contactInfo } = useContactInfo();
 
   useEffect(() => {
@@ -53,15 +54,47 @@ export function Home() {
   // Usar array de heroes ou fallback para hero único (compatibilidade)
   const heroes = content?.heroes || (content?.hero ? [content.hero] : []);
   
-  // Auto-rotacionar heroes a cada 5 segundos se houver mais de um
-  useEffect(() => {
+  // Função para resetar o contador de auto-rotação
+  const resetAutoRotate = useCallback(() => {
+    if (autoRotateIntervalRef.current) {
+      clearInterval(autoRotateIntervalRef.current);
+      autoRotateIntervalRef.current = null;
+    }
+    
     if (heroes.length > 1) {
-      const interval = setInterval(() => {
+      autoRotateIntervalRef.current = setInterval(() => {
         setCurrentHeroIndex((prev) => (prev + 1) % heroes.length);
-      }, 5000);
-      return () => clearInterval(interval);
+      }, 8000); // 8 segundos
     }
   }, [heroes.length]);
+
+  // Auto-rotacionar heroes a cada 8 segundos se houver mais de um
+  useEffect(() => {
+    resetAutoRotate();
+    
+    return () => {
+      if (autoRotateIntervalRef.current) {
+        clearInterval(autoRotateIntervalRef.current);
+        autoRotateIntervalRef.current = null;
+      }
+    };
+  }, [resetAutoRotate]);
+
+  // Funções de navegação - resetam o contador quando o usuário clica
+  const goToPreviousHero = () => {
+    setCurrentHeroIndex((prev) => (prev - 1 + heroes.length) % heroes.length);
+    resetAutoRotate();
+  };
+
+  const goToNextHero = () => {
+    setCurrentHeroIndex((prev) => (prev + 1) % heroes.length);
+    resetAutoRotate();
+  };
+
+  const goToHero = (index: number) => {
+    setCurrentHeroIndex(index);
+    resetAutoRotate();
+  };
 
   if (loading) {
     return (
@@ -96,7 +129,7 @@ export function Home() {
     <div className="overflow-hidden">
       {/* Hero Section - Design Limpo e Moderno */}
       <section className="relative bg-white w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-0 min-h-[85vh] lg:min-h-[90vh] w-full">
+        <div className="relative grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-0 min-h-[85vh] lg:min-h-[90vh] w-full">
           {/* Imagem à Esquerda */}
           <div className="relative w-full h-[50vh] lg:h-auto order-2 lg:order-1 overflow-hidden">
             <div className="absolute inset-0">
@@ -132,6 +165,33 @@ export function Home() {
             
             {/* Overlay sutil para melhorar legibilidade */}
             <div className="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent lg:from-black/30"></div>
+
+            {/* Setas de navegação - na imagem */}
+            {heroes.length > 1 && (
+              <>
+                {/* Seta esquerda */}
+                <button
+                  onClick={goToPreviousHero}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white/90 hover:bg-white text-primary-500 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
+                  aria-label="Hero anterior"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+
+                {/* Seta direita */}
+                <button
+                  onClick={goToNextHero}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white/90 hover:bg-white text-primary-500 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
+                  aria-label="Próximo hero"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </>
+            )}
           </div>
 
           {/* Bloco de Conteúdo à Direita */}
@@ -171,13 +231,13 @@ export function Home() {
               </div>
             </div>
 
-            {/* Indicador de paginação */}
+            {/* Indicador de paginação - Centralizado */}
             {heroes.length > 1 && (
-              <div className="absolute bottom-8 right-8 flex gap-2">
+              <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 z-20">
                 {heroes.map((_: unknown, index: number) => (
                   <button
                     key={index}
-                    onClick={() => setCurrentHeroIndex(index)}
+                    onClick={() => goToHero(index)}
                     className={`w-2.5 h-2.5 rounded-full transition-all ${
                       index === currentHeroIndex ? 'bg-white' : 'bg-white/40 hover:bg-white/60'
                     }`}
